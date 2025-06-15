@@ -16,11 +16,5 @@ public class ItemUpdateTest {
     public void updateTest() throws Exception {
         Book book = em.find(Book.class, 1L);
 
-        // TX
-        book.setName("abcd");
-
-        // 변경 감지 == dirty checking
-        // TX commit
-
     }
 }
