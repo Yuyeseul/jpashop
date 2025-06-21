@@ -2,6 +2,8 @@ package jpabook.jpashop.api;
 
 import jpabook.jpashop.domain.*;
 import jpabook.jpashop.repository.OrderRepository;
+import jpabook.jpashop.repository.order.query.OrderQueryDto;
+import jpabook.jpashop.repository.order.query.OrderQueryRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,7 @@ import static java.util.stream.Collectors.*;
 public class OrderApiController {
 
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     // 주문 조회 v1 : 엔티티를 직접 노출
     @GetMapping("/api/v1/orders")
@@ -66,6 +69,12 @@ public class OrderApiController {
                 .map(o -> new OrderDto(o))
                 .collect(toList());
         return result;
+    }
+
+    // 주문 조회 V4 : JPA에서 DTO 직접 조회
+    @GetMapping("/api/v4/orders")
+    public List<OrderQueryDto> ordersV4() {
+        return orderQueryRepository.findOrderQueryDtos();
     }
 
     @Data
