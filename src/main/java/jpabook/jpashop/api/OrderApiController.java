@@ -6,6 +6,7 @@ import jpabook.jpashop.repository.order.query.OrderFlatDto;
 import jpabook.jpashop.repository.order.query.OrderItemQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryRepository;
+import jpabook.jpashop.service.query.OrderQueryService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ public class OrderApiController {
 
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
+    private final OrderQueryService orderQueryService;
 
     // 주문 조회 v1 : 엔티티를 직접 노출
     @GetMapping("/api/v1/orders")
@@ -50,14 +52,17 @@ public class OrderApiController {
 
     // 주문 조회 V3 : 엔티티를 DTO로 변환 - 페치 조인 최적화 (컬렉션 1개만 가능, 페이징 불가능!)
     @GetMapping("/api/v3/orders")
-    public List<OrderDto> ordersV3() {
-        List<Order> orders = orderRepository.findAllWithItem();
-        List<OrderDto> result = orders.stream()
-                .map(o -> new OrderDto(o))
-                .collect(toList());
-
-        return result;
+    public List<jpabook.jpashop.service.query.OrderDto> ordersV3() {
+        return orderQueryService.ordersV3();
     }
+//    public List<OrderDto> ordersV3() {
+//        List<Order> orders = orderRepository.findAllWithItem();
+//        List<OrderDto> result = orders.stream()
+//                .map(o -> new OrderDto(o))
+//                .collect(toList());
+//
+//        return result;
+//    }
 
     // 주문 조회 V3.1 : 엔티티를 DTO로 변환 - 페이징과 한계 돌파
     @GetMapping("/api/v3.1/orders")
@@ -106,7 +111,7 @@ public class OrderApiController {
         private LocalDateTime orderDate;        // 주문시간
         private OrderStatus orderStatus;        // 주문상태
         private Address address;                // 배송지 정보
-        private List<OrderItemDTo> orderItems;  // 주문상품정보
+        private List<OrderItemDto> orderItems;  // 주문상품정보
 
         public OrderDto(Order order) {
             orderId = order.getId();
@@ -115,19 +120,19 @@ public class OrderApiController {
             orderStatus = order.getStatus();
             address = order.getDelivery().getAddress();
             orderItems = order.getOrderItems().stream()
-                    .map(orderItem -> new OrderItemDTo(orderItem))
+                    .map(orderItem -> new OrderItemDto(orderItem))
                     .collect(toList());
         }
     }
 
     @Data
-    static class OrderItemDTo {
+    static class OrderItemDto {
 
         private String itemName;        // 상품명
         private int orderPrice;         // 주문가격
         private int count;              // 주문수량
 
-        public OrderItemDTo(OrderItem orderItem) {
+        public OrderItemDto(OrderItem orderItem) {
             itemName = orderItem.getItem().getName();
             orderPrice = orderItem.getOrderPrice();
             count = orderItem.getCount();
